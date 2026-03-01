@@ -189,12 +189,12 @@ z-index:0;
 @media (max-width: 700px){
 	#musicControl{ right:12px; bottom:12px; width:46px; height:46px; }
 	#musicToast{ right:64px; bottom:18px; font-size:12px; }
-	#finalText{ font-size:18px; width:80%; top:44%; }
+	#finalText{ font-size:18px; width:80%; top:48%; }
 	#bouquet{ max-width:360px; max-height:460px; }
 }
 
 @media (max-width: 420px){
-	#finalText{ font-size:16px; width:86%; top:46%; }
+	#finalText{ font-size:16px; width:86%; top:50%; }
 	#musicControl{ width:44px; height:44px; }
 }
 </style>
@@ -387,12 +387,15 @@ const centerY = rect.top + rect.height/2 || window.innerHeight/2;
 const computedLeft = (centerX / window.innerWidth * 100) - 6; // move left by 6%
 const leftPct = Math.max(2, Math.min(90, computedLeft));
 bouquet.style.left = leftPct + '%';
-bouquet.style.top = (centerY / window.innerHeight * 100) + '%';
+
+// If on mobile, nudge the bouquet a bit lower so the ring sits around the text without overlapping
+const isMobile = window.innerWidth <= 700;
+const bouquetTopOffsetPct = isMobile ? 6 : 0; // push down by ~6% on small screens
+bouquet.style.top = (centerY / window.innerHeight * 100 + bouquetTopOffsetPct) + '%';
 
 // Place first 5 photos as bouquet: 3 on top (fan) and 2 below
 // arrange the five photos evenly around the `#finalText` in a circle
-// make sizes responsive: use smaller bouquet on narrow screens
-const isMobile = window.innerWidth <= 700;
+b// make sizes responsive: use smaller bouquet on narrow screens
 const bw = isMobile
 	? Math.min(window.innerWidth * 0.78, 380)
 	: Math.min(window.innerWidth * 0.38, 640);
@@ -403,7 +406,7 @@ bouquet.style.width = bw + 'px';
 bouquet.style.height = bh + 'px';
 
 // radius for circle (use a smaller factor on mobile so photos don't overlap text)
-const radius = Math.min(bw, bh) * (isMobile ? 0.36 : 0.50);
+const radius = Math.min(bw, bh) * (isMobile ? 0.30 : 0.50);
 const cx = bw/2;
 const cy = bh/2;
 
@@ -414,7 +417,7 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 
 	// size images relative to bouquet box; smaller on mobile
 	const size = isMobile
-		? Math.max(56, Math.min(120, Math.round(Math.min(bw, bh) * 0.28)))
+		? Math.max(48, Math.min(110, Math.round(Math.min(bw, bh) * 0.24)))
 		: Math.max(90, Math.min(200, Math.round(Math.min(bw, bh) * 0.34)));
 	img.style.width = size + 'px';
 	img.style.height = size + 'px';
@@ -441,16 +444,16 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 	// - photo 10: move a bit to the left
 	if(filename){
 		if(filename.startsWith('4.') || filename.includes('4.')){
-			// move up more so it sits above the circle top (increase to ~55% of radius)
-			y -= Math.round(radius * 0.65);
+			// move up: use smaller nudge on mobile, larger on desktop
+			y -= Math.round(radius * (isMobile ? 0.40 : 0.65));
 		}
 		if(filename.startsWith('5.') || filename.includes('5.')){
-			// move right by ~14% of radius
-			x += Math.round(radius * 0.24);
+			// move right by a smaller amount on mobile
+			x += Math.round(radius * (isMobile ? 0.12 : 0.24));
 		}
 		if(filename.startsWith('10.') || filename.includes('10.')){
-			// move left by ~14% of radius
-			x -= Math.round(radius * 0.24);
+			// move left by a smaller amount on mobile
+			x -= Math.round(radius * (isMobile ? 0.12 : 0.24));
 		}
 	}
 
