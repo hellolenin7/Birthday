@@ -197,6 +197,13 @@ z-index:0;
 	#finalText{ font-size:16px; width:86%; top:50%; }
 	#musicControl{ width:44px; height:44px; }
 }
+
+@media (max-width:375px){
+	/* very small phones: move text slightly down and shrink further */
+	#finalText{ font-size:15px; width:90%; top:54%; }
+	#bouquet{ max-width:320px; max-height:380px; }
+	canvas{ /* ensure fireworks still fit */ }
+}
 </style>
 </head>
 
@@ -395,17 +402,25 @@ bouquet.style.top = (centerY / window.innerHeight * 100 + bouquetTopOffsetPct) +
 // Place first 5 photos as bouquet: 3 on top (fan) and 2 below
 // arrange the five photos evenly around the `#finalText` in a circle
 // make sizes responsive: use smaller bouquet on narrow screens
-const bw = isMobile
-	? Math.min(window.innerWidth * 0.78, 380)
-	: Math.min(window.innerWidth * 0.38, 640);
-const bh = isMobile
-	? Math.min(window.innerHeight * 0.44, 480)
-	: Math.min(window.innerHeight * 0.48, 720);
+const smallMobile = window.innerWidth <= 375; // small phones
+const midMobile = window.innerWidth > 375 && window.innerWidth <= 700; // larger phones
+let bw, bh;
+if(smallMobile){
+	bw = Math.min(window.innerWidth * 0.82, 320);
+	bh = Math.min(window.innerHeight * 0.42, 380);
+} else if(midMobile){
+	bw = Math.min(window.innerWidth * 0.78, 380);
+	bh = Math.min(window.innerHeight * 0.44, 480);
+} else {
+	bw = Math.min(window.innerWidth * 0.38, 640);
+	bh = Math.min(window.innerHeight * 0.48, 720);
+}
 bouquet.style.width = bw + 'px';
 bouquet.style.height = bh + 'px';
 
-// radius for circle (use a smaller factor on mobile so photos don't overlap text)
-const radius = Math.min(bw, bh) * (isMobile ? 0.30 : 0.50);
+// radius for circle (smaller factor on very small screens so photos don't overlap text)
+const radiusFactor = smallMobile ? 0.28 : (midMobile ? 0.34 : 0.50);
+const radius = Math.min(bw, bh) * radiusFactor;
 const cx = bw/2;
 const cy = bh/2;
 
@@ -414,10 +429,17 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 	img.loading = 'lazy';
 	img.src = encodeURI(src);
 
-	// size images relative to bouquet box; smaller on mobile
-	const size = isMobile
-		? Math.max(48, Math.min(110, Math.round(Math.min(bw, bh) * 0.24)))
-		: Math.max(90, Math.min(200, Math.round(Math.min(bw, bh) * 0.34)));
+	// size images relative to bouquet box; scale down more on very small phones
+	let size;
+	if(smallMobile){
+		size = Math.max(44, Math.min(96, Math.round(Math.min(bw, bh) * 0.22)));
+	} else if(midMobile){
+		size = Math.max(56, Math.min(120, Math.round(Math.min(bw, bh) * 0.28)));
+	} else {
+		size = Math.max(90, Math.min(200, Math.round(Math.min(bw, bh) * 0.34)));
+	}
+	img.style.width = size + 'px';
+	img.style.height = size + 'px';
 	img.style.width = size + 'px';
 	img.style.height = size + 'px';
 
@@ -443,16 +465,19 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 	// - photo 10: move a bit to the left
 	if(filename){
 		if(filename.startsWith('4.') || filename.includes('4.')){
-			// move up: use smaller nudge on mobile, larger on desktop
-			y -= Math.round(radius * (isMobile ? 0.40 : 0.65));
+			// move up: use smaller nudge on very small phones, moderate on mid, larger on desktop
+			const upFactor = smallMobile ? 0.45 : (midMobile ? 0.55 : 0.75);
+			y -= Math.round(radius * upFactor);
 		}
 		if(filename.startsWith('5.') || filename.includes('5.')){
-			// move right by a smaller amount on mobile
-			x += Math.round(radius * (isMobile ? 0.12 : 0.24));
+			// move right by a scaled amount
+			const rightFactor = smallMobile ? 0.10 : (midMobile ? 0.16 : 0.24);
+			x += Math.round(radius * rightFactor);
 		}
 		if(filename.startsWith('10.') || filename.includes('10.')){
-			// move left by a smaller amount on mobile
-			x -= Math.round(radius * (isMobile ? 0.12 : 0.24));
+			// move left by a scaled amount
+			const leftFactor = smallMobile ? 0.10 : (midMobile ? 0.16 : 0.24);
+			x -= Math.round(radius * leftFactor);
 		}
 	}
 
