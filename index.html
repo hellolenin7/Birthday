@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday My Love ❤️</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+margin:0;
+font-family:'Courier New',monospace;
+background:linear-gradient(135deg,#ff5f9e,#ff85b3);
+color:white;
+text-align:center;
+overflow:hidden;
+}
+
+/* Screens */
+.screen{display:none;padding:20px;}
+.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
+
+/* TYPE TEXT */
+#text,#finalText{
+font-size:20px;
+white-space:pre-line;
+max-width:90%;
+}
+
+/* BUTTON */
+#startBtn{
+background:white;
+color:#ff2f7d;
+border:none;
+padding:15px 30px;
+font-size:18px;
+border-radius:40px;
+cursor:pointer;
+margin-top:25px;
+}
+
+/* FLOAT HEARTS */
+.float-heart{
+position:absolute;
+font-size:20px;
+animation:floatUp 6s linear infinite;
+opacity:.7;
+pointer-events:none;
+}
+@keyframes floatUp{
+from{transform:translateY(100vh);}
+to{transform:translateY(-10vh);}
+}
+
+/* GAME */
+#gameArea{
+position:relative;
+width:100%;
+height:70vh;
+background:rgba(255,255,255,.2);
+border-radius:20px;
+overflow:hidden;
+}
+
+#player{
+position:absolute;
+bottom:10px;
+left:45%;
+font-size:42px;
+}
+
+.heart{
+position:absolute;
+font-size:30px;
+}
+
+#score{font-size:22px;margin-bottom:10px;}
+
+/* PHOTO GALLERY */
+#photoGallery{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+z-index:-1;
+}
+
+#photoGallery img{
+position:absolute;
+border-radius:12px;
+object-fit:cover;
+box-shadow:0 4px 20px rgba(0,0,0,.3);
+opacity:0;
+animation:photoFadeIn 2.4s cubic-bezier(.2,.8,.2,1) forwards;
+
+width:18vw;
+height:24vw;
+max-width:160px;
+}
+
+/* bouquet container for 5-photo background behind final text */
+#bouquet{
+ position:absolute;
+ transform:translate(-50%,-50%);
+ width:36vw;
+ height:44vw;
+ max-width:520px;
+ max-height:620px;
+ pointer-events:none;
+}
+
+#bouquet img{
+ position:absolute;
+ border-radius:50%;
+ box-shadow:0 6px 26px rgba(0,0,0,.35);
+ opacity:0;
+ animation:photoFadeIn 2.4s cubic-bezier(.2,.8,.2,1) forwards;
+ object-fit:cover;
+ transform-origin:center center;
+}
+
+@keyframes photoFadeIn{
+from{opacity:0; transform:translateY(14px) scale(.88); filter:brightness(.95) saturate(.98);}
+to{opacity:.75; transform:translateY(0) scale(1); filter:brightness(1.08) saturate(1.05);}
+}
+
+#finalText{
+ position:absolute;
+ left:50%;
+ top:42%;
+ transform:translate(-50%,-50%);
+ z-index:99999;
+ width:60%;
+ max-width:720px;
+ text-align:center;
+ color:#ffffff;
+ font-weight:800;
+ font-size:22px;
+ line-height:1.45;
+ text-shadow:0 4px 22px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.02);
+ pointer-events:none;
+}
+
+/* FIREWORK */
+canvas{
+position:fixed;
+top:0;
+left:0;
+pointer-events:none;
+z-index:0;
+}
+/* music control */
+#musicControl{
+ position:fixed;
+ right:18px;
+ bottom:18px;
+ width:52px;
+ height:52px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.9);
+ color:#ff2f7d;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ box-shadow:0 6px 20px rgba(0,0,0,0.18);
+ cursor:pointer;
+ z-index:9999;
+}
+
+#musicToast{
+ position:fixed;
+ right:82px;
+ bottom:28px;
+ background:rgba(0,0,0,0.7);
+ color:#fff;
+ padding:8px 12px;
+ border-radius:8px;
+ font-size:13px;
+ opacity:0;
+ transform:translateY(6px);
+ transition:opacity .25s, transform .25s;
+ z-index:9999;
+}
+
+/* Responsive tweaks */
+@media (max-width: 700px){
+	#musicControl{ right:12px; bottom:12px; width:46px; height:46px; }
+	#musicToast{ right:64px; bottom:18px; font-size:12px; }
+	#finalText{ font-size:18px; width:80%; top:44%; }
+	#bouquet{ max-width:360px; max-height:460px; }
+}
+
+@media (max-width: 420px){
+	#finalText{ font-size:16px; width:86%; top:46%; }
+	#musicControl{ width:44px; height:44px; }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop>
+<source src="music/romantic.mp3" type="audio/mpeg">
+</audio>
+
+<canvas id="fireworks"></canvas>
+
+<!-- SCREEN 1 -->
+<div id="screen1" class="screen active">
+<div id="text"></div>
+<button id="startBtn" style="display:none;">
+Hangba Ngambra Yengo Thamoise 💘
+</button>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="screen2" class="screen">
+<div id="score">Tmcha gi Heart ne Tahankhino: 0 ❤️</div>
+<div id="gameArea">
+<div id="player">🧺</div>
+</div>
+</div>
+
+<!-- SCREEN 3 -->
+<div id="screen3" class="screen">
+<div id="photoGallery"></div>
+<div id="finalText"></div>
+</div>
+
+<script>
+
+/* MUSIC */
+document.body.addEventListener("click",()=>{
+document.getElementById("bgMusic").play().catch(()=>{});
+},{once:true});
+
+/* FLOAT HEARTS */
+setInterval(()=>{
+const h=document.createElement("div");
+h.className="float-heart";
+h.innerText="❤️";
+h.style.left=Math.random()*100+"vw";
+document.body.appendChild(h);
+setTimeout(()=>h.remove(),7000);
+},600);
+
+/* TYPEWRITER */
+function typeWriter(text,el,speed,cb){
+let i=0;
+function run(){
+if(i<text.length){
+el.innerHTML+=text.charAt(i++);
+setTimeout(run,speed);
+}else if(cb)cb();
+}
+run();
+}
+
+/* INTRO TEXT */
+const loveLines=[
+"You are my favorite thought ❤️",
+"You make my world brighter 🌍✨",
+"My heart smiles because of you 😊",
+"Loving you is my best decision 💕",
+"You are my forever Bii 💍"
+];
+
+const introText=`Hey my love ❤️
+
+Today is special…
+Because YOU were born 💫
+
+${loveLines[Math.floor(Math.random()*loveLines.length)]}
+
+Unlock my heart Bii 💖`;
+
+typeWriter(introText,
+document.getElementById("text"),
+45,
+()=>startBtn.style.display="inline-block"
+);
+
+/* GAME */
+const screen1=document.getElementById("screen1");
+const screen2=document.getElementById("screen2");
+const screen3=document.getElementById("screen3");
+const startBtn=document.getElementById("startBtn");
+
+startBtn.onclick=()=>{
+ const bg = document.getElementById('bgMusic');
+ try{
+	 bg.volume = 0.65;
+	 bg.muted = false;
+	 bg.currentTime = 0;
+	 bg.play().catch(()=>{});
+ }catch(e){}
+ screen1.classList.remove("active");
+ screen2.classList.add("active");
+ startGame();
+};
+
+let score=0;
+const scoreDiv=document.getElementById("score");
+const player=document.getElementById("player");
+const gameArea=document.getElementById("gameArea");
+
+document.addEventListener("mousemove",e=>move(e.clientX));
+document.addEventListener("touchmove",e=>move(e.touches[0].clientX));
+
+function move(x){
+let rect=gameArea.getBoundingClientRect();
+let pos=x-rect.left;
+if(pos>0&&pos<rect.width-40)
+player.style.left=pos+"px";
+}
+
+function createHeart(){
+const heart=document.createElement("div");
+heart.className="heart";
+heart.innerText="❤️";
+heart.style.left=Math.random()*
+(gameArea.clientWidth-30)+"px";
+heart.style.top="0";
+gameArea.appendChild(heart);
+
+const fall=setInterval(()=>{
+heart.style.top=
+(parseInt(heart.style.top)+4)+"px";
+
+const h=heart.getBoundingClientRect();
+const p=player.getBoundingClientRect();
+
+if(h.bottom>=p.top &&
+h.left<=p.right &&
+h.right>=p.left){
+
+score++;
+scoreDiv.innerText=
+`Tmcha gi Heart ne tahankhino: ${score} ❤️`;
+
+heart.remove();
+clearInterval(fall);
+
+if(score===5)endGame();
+}
+
+if(parseInt(heart.style.top)>
+gameArea.clientHeight){
+heart.remove();
+clearInterval(fall);
+}
+},30);
+}
+
+let interval;
+function startGame(){
+interval=setInterval(createHeart,800);
+}
+
+/* PHOTOS */
+const photoUrls=[
+"photos/4.jpeg",
+"photos/5.jpeg",
+"photos/7.jpeg",
+"photos/9.jpeg",
+"photos/10.jpeg"
+];
+
+function showPhotos(){
+const gallery=
+document.getElementById("photoGallery");
+
+// Create bouquet container centered on the final text
+const bouquet = document.createElement('div');
+bouquet.id = 'bouquet';
+gallery.appendChild(bouquet);
+
+const finalEl = document.getElementById('finalText');
+// compute final text center and position bouquet there
+const rect = finalEl.getBoundingClientRect();
+const centerX = rect.left + rect.width/2 || window.innerWidth/2;
+const centerY = rect.top + rect.height/2 || window.innerHeight/2;
+// shift bouquet a little to the left (safe clamp between 2% and 90%)
+const computedLeft = (centerX / window.innerWidth * 100) - 6; // move left by 6%
+const leftPct = Math.max(2, Math.min(90, computedLeft));
+bouquet.style.left = leftPct + '%';
+bouquet.style.top = (centerY / window.innerHeight * 100) + '%';
+
+// Place first 5 photos as bouquet: 3 on top (fan) and 2 below
+// arrange the five photos evenly around the `#finalText` in a circle
+// make sizes responsive: use smaller bouquet on narrow screens
+const isMobile = window.innerWidth <= 700;
+const bw = isMobile
+	? Math.min(window.innerWidth * 0.82, 400)
+	: Math.min(window.innerWidth * 0.38, 640);
+const bh = isMobile
+	? Math.min(window.innerHeight * 0.45, 520)
+	: Math.min(window.innerHeight * 0.48, 720);
+bouquet.style.width = bw + 'px';
+bouquet.style.height = bh + 'px';
+
+// radius for circle (larger factor on desktop, slightly smaller on mobile)
+const radius = Math.min(bw, bh) * (isMobile ? 0.44 : 0.50);
+const cx = bw/2;
+const cy = bh/2;
+
+photoUrls.slice(0,5).forEach((src,i)=>{
+	const img = document.createElement('img');
+	img.loading = 'lazy';
+	img.src = encodeURI(src);
+
+	// size images relative to bouquet box; smaller on mobile
+	const size = isMobile
+		? Math.max(64, Math.min(140, Math.round(Math.min(bw, bh) * 0.34)))
+		: Math.max(90, Math.min(180, Math.round(Math.min(bw, bh) * 0.32)));
+	img.style.width = size + 'px';
+	img.style.height = size + 'px';
+
+	// apply a small brightness/saturation bump to make them appear brighter
+	img.style.filter = 'brightness(1.12) saturate(1.06)';
+	img.style.boxShadow = '0 8px 28px rgba(0,0,0,.32)';
+
+	// angle evenly spaced, start at top (-90deg)
+	const angleDeg = i * (360 / 5) - 90;
+	const angle = angleDeg * Math.PI / 180;
+	let x = cx + Math.cos(angle) * radius;
+	let y = cy + Math.sin(angle) * radius;
+
+	// filename (last segment) for matching
+	let filename = '';
+	if(typeof src === 'string'){
+		filename = src.split('/').pop().toLowerCase();
+	}
+
+	// Adjust specific images per user request:
+	// - photo 4: move further up
+	// - photo 5: move a bit to the right
+	// - photo 10: move a bit to the left
+	if(filename){
+		if(filename.startsWith('4.') || filename.includes('4.')){
+			// move up by ~30% of radius
+			y -= Math.round(radius * 0.30);
+		}
+		if(filename.startsWith('5.') || filename.includes('5.')){
+			// move right by ~14% of radius
+			x += Math.round(radius * 0.14);
+		}
+		if(filename.startsWith('10.') || filename.includes('10.')){
+			// move left by ~14% of radius
+			x -= Math.round(radius * 0.14);
+		}
+	}
+
+	img.style.left = x + 'px';
+	img.style.top = y + 'px';
+	img.style.transform = 'translate(-50%,-50%) rotate(' + ((i-2)*6) + 'deg)';
+
+	img.style.animationDelay = (0.8 + i * 0.35 + Math.random() * 0.6) + 's';
+	img.onerror = ()=>img.remove();
+	bouquet.appendChild(img);
+});
+}
+
+/* END GAME */
+function endGame(){
+clearInterval(interval);
+screen2.classList.remove("active");
+screen3.classList.add("active");
+
+launchFireworks();
+showPhotos();
+
+const msg=`You unlocked my heart ❤️
+
+Happy Birthday my love Nungcbii 🎂🎉
+
+I promise to love you
+
+today, tomorrow,
+
+and forever 💖`;
+
+typeWriter(msg,
+document.getElementById("finalText"),
+45);
+}
+
+/* FIREWORKS */
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+function launchFireworks(){
+setInterval(()=>{
+ctx.clearRect(0,0,
+canvas.width,canvas.height);
+
+for(let i=0;i<50;i++){
+ctx.beginPath();
+ctx.arc(
+Math.random()*canvas.width,
+Math.random()*canvas.height,
+2,0,Math.PI*2);
+ctx.fillStyle=
+`hsl(${Math.random()*360},
+100%,60%)`;
+ctx.fill();
+}
+},300);
+}
+</script>
+
+<!-- Music control button -->
+<div id="musicControl" title="Play / Pause music">▶</div>
+<div id="musicToast"></div>
+
+<script>
+// Music control logic
+const musicBtn = document.getElementById('musicControl');
+const musicToast = document.getElementById('musicToast');
+const bg = document.getElementById('bgMusic');
+
+function showToast(msg){
+	musicToast.textContent = msg;
+	musicToast.style.opacity = '1';
+	musicToast.style.transform = 'translateY(0)';
+	setTimeout(()=>{ musicToast.style.opacity='0'; musicToast.style.transform='translateY(6px)'; }, 3000);
+}
+
+function updateButton(){
+	if(bg && !bg.paused){ musicBtn.textContent = '⏸'; }
+	else { musicBtn.textContent = '▶'; }
+}
+
+musicBtn.addEventListener('click', ()=>{
+	if(!bg) return showToast('No audio element found');
+	if(bg.paused){
+		bg.volume = 0.7;
+		bg.play().then(()=>{ updateButton(); showToast('Playing music'); }).catch(e=>{ showToast('Playback failed — check file/permissions'); console.error(e); });
+	} else {
+		bg.pause();
+		updateButton();
+		showToast('Music paused');
+	}
+});
+
+bg.addEventListener('play', updateButton);
+bg.addEventListener('pause', updateButton);
+bg.addEventListener('error', ()=>{ showToast('Audio error — file missing or invalid'); });
+
+// expose a quick diagnostic helper in window for console testing
+window._playBg = ()=>{ bg.volume=0.8; return bg.play().then(()=>console.log('playing')).catch(e=>console.error('play failed',e)); };
+</script>
+
+<!-- Debug banner to surface JS errors and load status -->
+<div id="debugBanner" style="position:fixed;left:12px;top:12px;z-index:100000;background:rgba(0,0,0,0.5);color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;display:none;">JS OK</div>
+<script>
+ document.addEventListener('DOMContentLoaded', ()=>{
+	 const b = document.getElementById('debugBanner');
+	 if(b){ b.style.display='block'; b.textContent='JS loaded'; setTimeout(()=>b.style.display='none',2500); }
+ });
+ window.addEventListener('error', (e)=>{
+	 const b = document.getElementById('debugBanner');
+	 if(b){ b.style.display='block'; b.textContent = 'JS error: '+ (e && e.message ? e.message : e.toString()); }
+ });
+ window.addEventListener('unhandledrejection',(ev)=>{
+	 const b = document.getElementById('debugBanner');
+	 if(b){ b.style.display='block'; b.textContent = 'Promise rejection: '+ (ev.reason && ev.reason.message ? ev.reason.message : ev.reason); }
+ });
+</script>
+
+</body>
+</html>
