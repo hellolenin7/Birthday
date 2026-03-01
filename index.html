@@ -212,13 +212,13 @@ z-index:0;
 <div id="screen1" class="screen active">
 <div id="text"></div>
 <button id="startBtn" style="display:none;">
-Hangba Ngambra Yengo Thamoise 💘
+C Da Nammo Duga Kei Uge Yengo💘
 </button>
 </div>
 
 <!-- SCREEN 2 -->
 <div id="screen2" class="screen">
-<div id="score">Tmcha gi Heart ne Tahankhino: 0 ❤️</div>
+<div id="score">Tmcha gi Thamoi ne Lwsilo: 0 ❤️</div>
 <div id="gameArea">
 <div id="player">🧺</div>
 </div>
@@ -265,17 +265,16 @@ const loveLines=[
 "You make my world brighter 🌍✨",
 "My heart smiles because of you 😊",
 "Loving you is my best decision 💕",
-"You are my forever Bii 💍"
+"You are my forever 💍"
 ];
 
 const introText=`Hey my love ❤️
-
 Today is special…
 Because YOU were born 💫
 
 ${loveLines[Math.floor(Math.random()*loveLines.length)]}
-
-Unlock my heart Bii 💖`;
+Unlock my heart Bii 💖
+To see the surprise I made for you 🎁`;
 
 typeWriter(introText,
 document.getElementById("text"),
@@ -395,7 +394,7 @@ bouquet.style.top = (centerY / window.innerHeight * 100 + bouquetTopOffsetPct) +
 
 // Place first 5 photos as bouquet: 3 on top (fan) and 2 below
 // arrange the five photos evenly around the `#finalText` in a circle
-b// make sizes responsive: use smaller bouquet on narrow screens
+// make sizes responsive: use smaller bouquet on narrow screens
 const bw = isMobile
 	? Math.min(window.innerWidth * 0.78, 380)
 	: Math.min(window.innerWidth * 0.38, 640);
@@ -475,15 +474,14 @@ screen3.classList.add("active");
 
 launchFireworks();
 
-const msg=`You unlocked my heart ❤️
-
-Happy Birthday my love Nungcbii 🎂🎉
-
-I promise to love you
-
+const msg=`Hehe Momonga Nokeeko ❤️
+Nang Natana Kanana Ei Thamoi Hangdoino
+Happy Birthday My Love Nungcbii 🎂🎉
+I promise to Love you
 today, tomorrow,
-
-and forever 💖`;
+and forever 💖
+Eidi Nangbu dum nungcgini
+Happy Birthday Bii 🎂🎉`;
 
 // type the final text first, then create the bouquet so positioning centers around the rendered text
 typeWriter(msg,
