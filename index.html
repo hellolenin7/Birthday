@@ -394,16 +394,16 @@ bouquet.style.top = (centerY / window.innerHeight * 100) + '%';
 // make sizes responsive: use smaller bouquet on narrow screens
 const isMobile = window.innerWidth <= 700;
 const bw = isMobile
-	? Math.min(window.innerWidth * 0.82, 400)
+	? Math.min(window.innerWidth * 0.78, 380)
 	: Math.min(window.innerWidth * 0.38, 640);
 const bh = isMobile
-	? Math.min(window.innerHeight * 0.45, 520)
+	? Math.min(window.innerHeight * 0.44, 480)
 	: Math.min(window.innerHeight * 0.48, 720);
 bouquet.style.width = bw + 'px';
 bouquet.style.height = bh + 'px';
 
-// radius for circle (larger factor on desktop, slightly smaller on mobile)
-const radius = Math.min(bw, bh) * (isMobile ? 0.44 : 0.50);
+// radius for circle (use a smaller factor on mobile so photos don't overlap text)
+const radius = Math.min(bw, bh) * (isMobile ? 0.36 : 0.50);
 const cx = bw/2;
 const cy = bh/2;
 
@@ -414,8 +414,8 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 
 	// size images relative to bouquet box; smaller on mobile
 	const size = isMobile
-		? Math.max(64, Math.min(140, Math.round(Math.min(bw, bh) * 0.34)))
-		: Math.max(90, Math.min(180, Math.round(Math.min(bw, bh) * 0.32)));
+		? Math.max(56, Math.min(120, Math.round(Math.min(bw, bh) * 0.28)))
+		: Math.max(90, Math.min(200, Math.round(Math.min(bw, bh) * 0.34)));
 	img.style.width = size + 'px';
 	img.style.height = size + 'px';
 
@@ -471,7 +471,6 @@ screen2.classList.remove("active");
 screen3.classList.add("active");
 
 launchFireworks();
-showPhotos();
 
 const msg=`You unlocked my heart ❤️
 
@@ -483,9 +482,15 @@ today, tomorrow,
 
 and forever 💖`;
 
+// type the final text first, then create the bouquet so positioning centers around the rendered text
 typeWriter(msg,
-document.getElementById("finalText"),
-45);
+	document.getElementById("finalText"),
+	45,
+	()=>{
+		// small timeout so layout stabilizes on mobile before measuring
+		setTimeout(()=>showPhotos(),120);
+	}
+);
 }
 
 /* FIREWORKS */
