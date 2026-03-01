@@ -441,8 +441,8 @@ photoUrls.slice(0,5).forEach((src,i)=>{
 	// - photo 10: move a bit to the left
 	if(filename){
 		if(filename.startsWith('4.') || filename.includes('4.')){
-			// move up by ~30% of radius
-			y -= Math.round(radius * 0.30);
+			// move up more so it sits above the circle top (increase to ~55% of radius)
+			y -= Math.round(radius * 0.55);
 		}
 		if(filename.startsWith('5.') || filename.includes('5.')){
 			// move right by ~14% of radius
